@@ -2,6 +2,8 @@
 #include <mlx.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h> // Open
+#include <unistd.h> // Read
 
 typedef struct		s_user_sprites
 {
@@ -37,18 +39,29 @@ typedef struct		s_coin_sprites
 	void	*coin_3;
 }	t_coin_sprites;
 
+typedef struct		s_ghost_sprites
+{
+	void	*ghost_0;
+	void	*ghost_1;
+	void	*ghost_2;
+	void	*ghost_3;
+}	t_ghost_sprites;
+
 typedef struct		s_param
 {
 	int				last_key;
 	void			*img;
 	void			*tile;
+	void			*wall;
 	void			*mlx;
 	void			*win;
 	t_user_sprites	user_sprites;
 	t_exit_sprites	exit_sprites;
 	t_coin_sprites	coin_sprites;
+	t_ghost_sprites	ghost_sprites;
 	int				x;
 	int				y;
+	char			**map;
 }	t_param;
 
 
@@ -60,6 +73,30 @@ void				param_init(t_param *param)
 }
 
 void				load_images(t_param *param)
+{
+	int	w;
+	int	h;
+	void * mlx;
+	t_exit_sprites *exit;
+	t_coin_sprites *coins;
+	t_ghost_sprites *ghosts;
+
+	mlx = &param->mlx;
+	exit = &param->exit_sprites;
+	coins = &param->coin_sprites;
+	ghosts = &param->ghost_sprites;
+	param->wall = mlx_xpm_file_to_image(mlx, "sprites/tree.xpm", &w, &h);
+	param->tile = mlx_xpm_file_to_image(mlx, "sprites/tile.xpm", &w, &h);
+	exit->open = mlx_xpm_file_to_image(mlx, "sprites/e_open.xpm", &w, &h);
+	exit->closed = mlx_xpm_file_to_image(mlx, "sprites/e_closed.xpm", &w, &h);
+	coins->coin_0 = mlx_xpm_file_to_image(param->mlx, "sprites/c_0.xpm", &w, &h);
+	coins->coin_1 = mlx_xpm_file_to_image(param->mlx, "sprites/c_1.xpm", &w, &h);
+	coins->coin_2 = mlx_xpm_file_to_image(param->mlx, "sprites/c_2.xpm", &w, &h);
+	coins->coin_3 = mlx_xpm_file_to_image(param->mlx, "sprites/c_3.xpm", &w, &h);
+	ghosts->ghost_0 = mlx_xpm_file_to_image(param->mlx, "sprites/g_0.xpm", &w, &h);
+}
+
+void				load_user_sprites(t_param *param)
 {
 	int	w;
 	int	h;
@@ -82,25 +119,7 @@ void				load_images(t_param *param)
 	user->d_1 = mlx_xpm_file_to_image(param->mlx, "sprites/d_1.xpm", &w, &h);
 	user->d_2 = mlx_xpm_file_to_image(param->mlx, "sprites/d_2.xpm", &w, &h);
 	user->d_3 = mlx_xpm_file_to_image(param->mlx, "sprites/d_3.xpm", &w, &h);
-}
-
-int					key_press(int keycode, t_param *param)
-{
-	static int	a;
-
-	a = 0;
-	if (keycode == KEY_D) // Action when W key pressed
-		param->y++;
-	else if (keycode == KEY_S) // Action when S key pressed
-		param->y--;
-	if (keycode == KEY_A) // Action when W key pressed
-		param->x--;
-	else if (keycode == KEY_D) // Action when S key pressed
-		param->x++;
-	else if (keycode == KEY_ESC) // Quit the program when ESC key pressed
-		exit(0);
-	printf("x: %d\n", param->x);
-	return (0);
+	param->img = param->user_sprites.s_0;
 }
 
 int					key_hook(int keycode, t_param *param)
@@ -131,19 +150,6 @@ int					key_hook(int keycode, t_param *param)
 		exit(0);
 	return (0);
 }
-
-// int	direction_key_hook(int keycode, t_param *param)
-// {
-// 	if (keycode == KEY_W)
-// 		param->direction = "UP";
-// 	else if (keycode == KEY_S)
-// 		param->direction = "DOWN";
-// 	else if (keycode == KEY_A)
-// 		param->direction = "LEFT";
-// 	else if (keycode == KEY_D)
-// 		param->direction = "RIGHT";
-// 	return (0);
-// }
 
 int	ft_update(t_param *param)
 {
@@ -203,12 +209,72 @@ int	ft_update(t_param *param)
 		frame = 0;
 	else
 		frame++;
+
 	mlx_put_image_to_window(
 		param->mlx, param->win, param->img, param->x * 64, param->y * 64);
 	return (0);
 }
 
-int					main(void)
+void load_map(t_param	*param, char *file_path)
+{
+	int fd = open(file_path, O_RDONLY);
+	char		read_buffer[1024];
+	read(fd, read_buffer, 1024);
+	// // If the above is lower than 0, throw an error
+	param->map = ft_split(read_buffer, '\n');
+	int i;
+	int j;
+	i = 0;
+	printf("%s\n", param->map[0]);
+	printf("%s\n", param->map[1]);
+	printf("%s\n", param->map[2]);
+	printf("%s\n", param->map[3]);
+	printf("%s\n", param->map[4]);
+	printf("--\n\n");
+	while (param->map[i])
+	{
+		j = 0;
+		while(param->map[i][j])
+		{
+			printf("[%d][%d] -> %c\n", i, j, param->map[i][j]);
+			if (param->map[i][j] == '1')
+			{
+				mlx_put_image_to_window(
+					param->mlx, param->win, param->wall, j*64, i*64);
+			}
+			if (param->map[i][j] == '0')
+			{
+				mlx_put_image_to_window(
+					param->mlx, param->win, param->tile, j*64, i*64);
+			}
+			if (param->map[i][j] == 'E')
+			{
+				mlx_put_image_to_window(
+					param->mlx, param->win, param->exit_sprites.closed, j*64, i*64);
+			}
+			if (param->map[i][j] == 'C')
+			{
+				mlx_put_image_to_window(
+					param->mlx, param->win, param->coin_sprites.coin_0, j*64, i*64);
+			}
+			if (param->map[i][j] == 'P')
+			{
+				param->x = j;
+				param->y = i;
+			}
+			if (param->map[i][j] == 'G')
+			{
+				mlx_put_image_to_window(
+					param->mlx, param->win, param->ghost_sprites.ghost_0, j*64, i*64);
+			}
+			j++;
+		}
+		i++;
+	}
+
+}
+
+int	main(int argc, char **argv)
 {
 	void	*win;
 	t_param	param;
@@ -218,12 +284,12 @@ int					main(void)
 	// void		*mlx;
 	param_init(&param);
 	param.mlx = mlx_init();
-	param.win = mlx_new_window(param.mlx, 500, 500, "mlx_project");
+	param.win = mlx_new_window(param.mlx, 800, 800, "mlx_project");
 	mlx_key_hook(param.win, key_hook, &param);
 	// sprite test
 	load_images(&param);
-	param.tile = mlx_xpm_file_to_image(
-		param.mlx, "sprites/tile.xpm", &img_width, &img_height);
+	load_user_sprites(&param);
+	load_map(&param, argv[1]);
 	mlx_loop_hook(param.mlx, *ft_update, &param);
 	mlx_loop(param.mlx);
 }

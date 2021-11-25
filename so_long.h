@@ -14,3 +14,5 @@
 
 // TILE
 # define TILE_SIZE	64
+
+char	**ft_split(char const *s, char c);
