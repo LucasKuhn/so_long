@@ -49,12 +49,15 @@ typedef struct		s_ghost_sprites
 
 typedef struct		s_param
 {
+	char			*map_file;
+	int				game_ended;
 	int				last_key;
 	void			*img;
 	void			*tile;
 	void			*wall;
 	void			*mlx;
 	void			*win;
+	void			*coin;
 	t_user_sprites	user_sprites;
 	t_exit_sprites	exit_sprites;
 	t_coin_sprites	coin_sprites;
@@ -62,14 +65,18 @@ typedef struct		s_param
 	int				x;
 	int				y;
 	char			**map;
+	int map_width;
+	int map_height;
 }	t_param;
 
 
 
 void				param_init(t_param *param)
 {
-	param->x = 0;
-	param->y = 0;
+	// param->x = 0;
+	// param->y = 0;
+	param->game_ended = 0;
+	param->last_key = KEY_S;
 }
 
 void				load_images(t_param *param)
@@ -94,6 +101,10 @@ void				load_images(t_param *param)
 	coins->coin_2 = mlx_xpm_file_to_image(param->mlx, "sprites/c_2.xpm", &w, &h);
 	coins->coin_3 = mlx_xpm_file_to_image(param->mlx, "sprites/c_3.xpm", &w, &h);
 	ghosts->ghost_0 = mlx_xpm_file_to_image(param->mlx, "sprites/g_0.xpm", &w, &h);
+	ghosts->ghost_1 = mlx_xpm_file_to_image(param->mlx, "sprites/g_1.xpm", &w, &h);
+	ghosts->ghost_2 = mlx_xpm_file_to_image(param->mlx, "sprites/g_2.xpm", &w, &h);
+	ghosts->ghost_3 = mlx_xpm_file_to_image(param->mlx, "sprites/g_3.xpm", &w, &h);
+	param->coin = coins->coin_0;
 }
 
 void				load_user_sprites(t_param *param)
@@ -122,40 +133,43 @@ void				load_user_sprites(t_param *param)
 	param->img = param->user_sprites.s_0;
 }
 
-int					key_hook(int keycode, t_param *param)
+int handle_movement(int keycode, t_param *param)
 {
-	mlx_put_image_to_window(
-		param->mlx, param->win, param->tile, param->x * 64, param->y * 64);
+
+	param->last_key = keycode;
+	param->map[param->y][param->x] = '0';
+
 	if (keycode == KEY_W)
 	{
 		param->y--;
-		param->last_key = keycode;
 	}
-	else if (keycode == KEY_S)
+	if (keycode == KEY_S)
 	{
 		param->y++;
-		param->last_key = keycode;
 	}
-	else if (keycode == KEY_A)
+	if (keycode == KEY_A)
 	{
 		param->x--;
-		param->last_key = keycode;
 	}
-	else if (keycode == KEY_D)
+	if (keycode == KEY_D)
 	{
 		param->x++;
-		param->last_key = keycode;
 	}
-	if (keycode == KEY_ESC)
-		exit(0);
+	param->map[param->y][param->x] = 'P';
 	return (0);
 }
 
-int	ft_update(t_param *param)
+int close_game()
 {
-	static int	frame;
+	exit(0);
+}
+
+void draw_player(t_param *param, int frame, int x, int y)
+{
 	static int	current_key;
 
+	if (frame >= 60)
+		frame = frame - 60;
 	if ( param->last_key != current_key )
 	{
 		frame = 0;
@@ -205,13 +219,97 @@ int	ft_update(t_param *param)
 		if (frame == 15 * 3)
 			param->img = param->user_sprites.d_3;
 	}
-	if (frame == 15 * 4)
+	mlx_put_image_to_window(
+		param->mlx, param->win, param->img, x * 64, y * 64);
+}
+
+void draw_coin(t_param *param, int x, int y)
+{
+	if (x % 2 == 0 && y % 2 == 0)
+		mlx_put_image_to_window(
+			param->mlx, param->win, param->coin_sprites.coin_0, x*64, y*64);
+	if (x % 2 == 0 && y % 2 != 0)
+		mlx_put_image_to_window(
+			param->mlx, param->win, param->coin_sprites.coin_1, x*64, y*64);
+	if (x % 2 != 0 && y % 2 == 0)
+		mlx_put_image_to_window(
+			param->mlx, param->win, param->coin_sprites.coin_2, x*64, y*64);
+	if (x % 2 != 0 && y % 2 != 0)
+		mlx_put_image_to_window(
+			param->mlx, param->win, param->coin_sprites.coin_3, x*64, y*64);
+	return ;
+}
+
+void draw_ghost(t_param *param, int frame, int x, int y)
+{
+	if (frame == 30 * 0)
+		mlx_put_image_to_window(
+			param->mlx, param->win, param->ghost_sprites.ghost_0, x*64, y*64);
+	if (frame == 30 * 1)
+		mlx_put_image_to_window(
+			param->mlx, param->win, param->ghost_sprites.ghost_1, x*64, y*64);
+	if (frame == 30 * 2)
+		mlx_put_image_to_window(
+			param->mlx, param->win, param->ghost_sprites.ghost_2, x*64, y*64);
+	if (frame == 30 * 3)
+		mlx_put_image_to_window(
+			param->mlx, param->win, param->ghost_sprites.ghost_3, x*64, y*64);
+}
+
+
+void draw_map(t_param	*param, int frame)
+{
+	int x;
+	int y;
+
+	y = 0;
+	while (param->map[y])
+	{
+		x = 0;
+		while(param->map[y][x])
+		{
+			if (param->map[y][x] == '1')
+			{
+				mlx_put_image_to_window(
+					param->mlx, param->win, param->wall, x*64, y*64);
+			}
+			if (param->map[y][x] == '0')
+			{
+				mlx_put_image_to_window(
+					param->mlx, param->win, param->tile, x*64, y*64);
+			}
+			if (param->map[y][x] == 'E')
+			{
+				mlx_put_image_to_window(
+					param->mlx, param->win, param->exit_sprites.closed, x*64, y*64);
+			}
+			if (param->map[y][x] == 'C')
+			{
+				draw_coin(param, x, y);
+			}
+			if (param->map[y][x] == 'P')
+			{
+				draw_player(param, frame, x, y);
+			}
+			if (param->map[y][x] == 'G')
+			{
+				draw_ghost(param, frame, x, y);
+			}
+			x++;
+		}
+		y++;
+	}
+}
+
+int	ft_update(t_param *param)
+{
+	static int	frame;
+
+	draw_map(param, frame);
+	if (frame == 15 * 8)
 		frame = 0;
 	else
 		frame++;
-
-	mlx_put_image_to_window(
-		param->mlx, param->win, param->img, param->x * 64, param->y * 64);
 	return (0);
 }
 
@@ -220,58 +318,62 @@ void load_map(t_param	*param, char *file_path)
 	int fd = open(file_path, O_RDONLY);
 	char		read_buffer[1024];
 	read(fd, read_buffer, 1024);
+	close(fd);
 	// // If the above is lower than 0, throw an error
 	param->map = ft_split(read_buffer, '\n');
-	int i;
-	int j;
-	i = 0;
-	printf("%s\n", param->map[0]);
-	printf("%s\n", param->map[1]);
-	printf("%s\n", param->map[2]);
-	printf("%s\n", param->map[3]);
-	printf("%s\n", param->map[4]);
-	printf("--\n\n");
-	while (param->map[i])
-	{
-		j = 0;
-		while(param->map[i][j])
-		{
-			printf("[%d][%d] -> %c\n", i, j, param->map[i][j]);
-			if (param->map[i][j] == '1')
-			{
-				mlx_put_image_to_window(
-					param->mlx, param->win, param->wall, j*64, i*64);
-			}
-			if (param->map[i][j] == '0')
-			{
-				mlx_put_image_to_window(
-					param->mlx, param->win, param->tile, j*64, i*64);
-			}
-			if (param->map[i][j] == 'E')
-			{
-				mlx_put_image_to_window(
-					param->mlx, param->win, param->exit_sprites.closed, j*64, i*64);
-			}
-			if (param->map[i][j] == 'C')
-			{
-				mlx_put_image_to_window(
-					param->mlx, param->win, param->coin_sprites.coin_0, j*64, i*64);
-			}
-			if (param->map[i][j] == 'P')
-			{
-				param->x = j;
-				param->y = i;
-			}
-			if (param->map[i][j] == 'G')
-			{
-				mlx_put_image_to_window(
-					param->mlx, param->win, param->ghost_sprites.ghost_0, j*64, i*64);
-			}
-			j++;
-		}
-		i++;
-	}
 
+	int x;
+	int y;
+	y = 0;
+	while (param->map[y])
+	{
+		printf("%s\n", param->map[y]);
+		x = 0;
+		while(param->map[y][x])
+		{
+			if (param->map[y][x] == 'P')
+			{
+				param->x = x;
+				param->y = y;
+			}
+			x++;
+		}
+		y++;
+	}
+	param->map_width	= x * 64;
+	param->map_height	= y * 64;
+	printf("--\n\n");
+
+}
+
+void print_map(t_param *param)
+{
+	int x;
+	int y;
+
+	y = 0;
+	while (param->map[y])
+	{
+		printf("%s\n", param->map[y]);
+		y++;
+	}
+	printf("\n");
+	printf("Current P -> [%d][%d]", param->y, param->x);
+	printf("\n\n");
+}
+
+int	key_hook(int keycode, t_param *param)
+{
+	if (keycode == KEY_ESC)
+		return(close_game());
+	if (keycode == KEY_R)
+		load_map(param, param->map_file);
+	if (keycode == KEY_P)
+		print_map(param);
+	if (param->game_ended)
+		return (0);
+	handle_movement(keycode, param);
+	return(0);
 }
 
 int	main(int argc, char **argv)
@@ -281,15 +383,17 @@ int	main(int argc, char **argv)
 	int		img_width;
 	int		img_height;
 
-	// void		*mlx;
+
+	param.map_file = argv[1];
+	load_map(&param, param.map_file);
 	param_init(&param);
 	param.mlx = mlx_init();
-	param.win = mlx_new_window(param.mlx, 800, 800, "mlx_project");
+	param.win = mlx_new_window(param.mlx, param.map_width, param.map_height, "mlx_project");
 	mlx_key_hook(param.win, key_hook, &param);
-	// sprite test
 	load_images(&param);
 	load_user_sprites(&param);
-	load_map(&param, argv[1]);
+
+	mlx_hook(param.win, BTN_X, NO_EVENT, close_game, &param);
 	mlx_loop_hook(param.mlx, *ft_update, &param);
 	mlx_loop(param.mlx);
 }
