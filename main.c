@@ -7,6 +7,7 @@
 
 typedef struct		s_user_sprites
 {
+	void	*current;
 	void	*w_0;
 	void	*w_1;
 	void	*w_2;
@@ -52,7 +53,6 @@ typedef struct		s_param
 	char			*map_file;
 	int				game_ended;
 	int				last_key;
-	void			*img;
 	void			*tile;
 	void			*wall;
 	void			*mlx;
@@ -130,7 +130,7 @@ void				load_user_sprites(t_param *param)
 	user->d_1 = mlx_xpm_file_to_image(param->mlx, "sprites/d_1.xpm", &w, &h);
 	user->d_2 = mlx_xpm_file_to_image(param->mlx, "sprites/d_2.xpm", &w, &h);
 	user->d_3 = mlx_xpm_file_to_image(param->mlx, "sprites/d_3.xpm", &w, &h);
-	param->img = param->user_sprites.s_0;
+	user->current = user->s_0;
 }
 
 int handle_movement(int keycode, t_param *param)
@@ -166,7 +166,8 @@ int close_game()
 
 void draw_player(t_param *param, int frame, int x, int y)
 {
-	static int	current_key;
+	static int		current_key;
+	t_user_sprites	*user_sprites;
 
 	if (frame >= 60)
 		frame = frame - 60;
@@ -175,52 +176,53 @@ void draw_player(t_param *param, int frame, int x, int y)
 		frame = 0;
 		current_key = param->last_key;
 	}
+	sprites = &param->user_sprites;
 	if (param->last_key == KEY_W)
 	{
 		if (frame == 15 * 0)
-			param->img = param->user_sprites.w_0;
+			sprites->current = sprites.w_0;
 		if (frame == 15 * 1)
-			param->img = param->user_sprites.w_1;
+			sprites->current = sprites.w_1;
 		if (frame == 15 * 2)
-			param->img = param->user_sprites.w_2;
+			sprites->current = sprites.w_2;
 		if (frame == 15 * 3)
-			param->img = param->user_sprites.w_3;
+			sprites->current = sprites.w_3;
 	}
 	if (param->last_key == KEY_A)
 	{
 		if (frame == 15 * 0)
-			param->img = param->user_sprites.a_0;
+			sprites->current = sprites.a_0;
 		if (frame == 15 * 1)
-			param->img = param->user_sprites.a_1;
+			sprites->current = sprites.a_1;
 		if (frame == 15 * 2)
-			param->img = param->user_sprites.a_2;
+			sprites->current = sprites.a_2;
 		if (frame == 15 * 3)
-			param->img = param->user_sprites.a_3;
+			sprites->current = sprites.a_3;
 	}
 	if (param->last_key == KEY_S)
 	{
 		if (frame == 15 * 0)
-			param->img = param->user_sprites.s_0;
+			sprites->current = sprites.s_0;
 		if (frame == 15 * 1)
-			param->img = param->user_sprites.s_1;
+			sprites->current = sprites.s_1;
 		if (frame == 15 * 2)
-			param->img = param->user_sprites.s_2;
+			sprites->current = sprites.s_2;
 		if (frame == 15 * 3)
-			param->img = param->user_sprites.s_3;
+			sprites->current = sprites.s_3;
 	}
 	if (param->last_key == KEY_D)
 	{
 		if (frame == 15 * 0)
-			param->img = param->user_sprites.d_0;
+			sprites->current = sprites.d_0;
 		if (frame == 15 * 1)
-			param->img = param->user_sprites.d_1;
+			sprites->current = sprites.d_1;
 		if (frame == 15 * 2)
-			param->img = param->user_sprites.d_2;
+			sprites->current = sprites.d_2;
 		if (frame == 15 * 3)
-			param->img = param->user_sprites.d_3;
+			sprites->current = sprites.d_3;
 	}
 	mlx_put_image_to_window(
-		param->mlx, param->win, param->img, x * 64, y * 64);
+		param->mlx, param->win, sprites->current, x * 64, y * 64);
 }
 
 void draw_coin(t_param *param, int x, int y)
