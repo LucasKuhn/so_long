@@ -7,7 +7,8 @@ MLXFLAGS	= -lmlx -framework OpenGL -framework AppKit
 LIBFT_FLAGS	= -L./libft -lft
 LEAK_FLAGS	= -g -fsanitize=address
 FLAGS		= $(LIBFT_FLAGS) $(MLXFLAGS) $(LEAK_FLAGS)
-SRCS		= main.c
+SRCS		=	draw_player.c main.c
+			
 OBJS		= $(SRCS:%.c=%.o)
 
 all: $(NAME)
@@ -27,4 +28,6 @@ fclean: clean
 	@rm -rf $(NAME)
 
 re: fclean all
+
+.PHONY: all clean
 

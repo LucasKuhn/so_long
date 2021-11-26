@@ -1,85 +1,13 @@
 #include "so_long.h"
-#include <mlx.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h> // Open
-#include <unistd.h> // Read
 
-typedef struct		s_user_sprites
+
+void				param_init(t_game *param)
 {
-	void	*current;
-	void	*w_0;
-	void	*w_1;
-	void	*w_2;
-	void	*w_3;
-	void	*a_0;
-	void	*a_1;
-	void	*a_2;
-	void	*a_3;
-	void	*s_0;
-	void	*s_1;
-	void	*s_2;
-	void	*s_3;
-	void	*d_0;
-	void	*d_1;
-	void	*d_2;
-	void	*d_3;
-}					t_user_sprites;
-
-typedef struct		s_exit_sprites
-{
-	void	*open;
-	void	*closed;
-}	t_exit_sprites;
-
-typedef struct		s_coin_sprites
-{
-	void	*coin_0;
-	void	*coin_1;
-	void	*coin_2;
-	void	*coin_3;
-}	t_coin_sprites;
-
-typedef struct		s_ghost_sprites
-{
-	void	*ghost_0;
-	void	*ghost_1;
-	void	*ghost_2;
-	void	*ghost_3;
-}	t_ghost_sprites;
-
-typedef struct		s_param
-{
-	char			*map_file;
-	int				game_ended;
-	int				last_key;
-	void			*tile;
-	void			*wall;
-	void			*mlx;
-	void			*win;
-	void			*coin;
-	t_user_sprites	user_sprites;
-	t_exit_sprites	exit_sprites;
-	t_coin_sprites	coin_sprites;
-	t_ghost_sprites	ghost_sprites;
-	int				x;
-	int				y;
-	char			**map;
-	int map_width;
-	int map_height;
-}	t_param;
-
-
-
-void				param_init(t_param *param)
-{
-	// param->x = 0;
-	// param->y = 0;
 	param->game_ended = 0;
 	param->last_key = KEY_S;
 }
 
-void				load_images(t_param *param)
+void				load_images(t_game *param)
 {
 	int	w;
 	int	h;
@@ -107,7 +35,7 @@ void				load_images(t_param *param)
 	param->coin = coins->coin_0;
 }
 
-void				load_user_sprites(t_param *param)
+void				load_user_sprites(t_game *param)
 {
 	int	w;
 	int	h;
@@ -133,28 +61,20 @@ void				load_user_sprites(t_param *param)
 	user->current = user->s_0;
 }
 
-int handle_movement(int keycode, t_param *param)
+int handle_movement(int keycode, t_game *param)
 {
 
 	param->last_key = keycode;
 	param->map[param->y][param->x] = '0';
 
 	if (keycode == KEY_W)
-	{
 		param->y--;
-	}
 	if (keycode == KEY_S)
-	{
 		param->y++;
-	}
 	if (keycode == KEY_A)
-	{
 		param->x--;
-	}
 	if (keycode == KEY_D)
-	{
 		param->x++;
-	}
 	param->map[param->y][param->x] = 'P';
 	return (0);
 }
@@ -164,68 +84,7 @@ int close_game()
 	exit(0);
 }
 
-void draw_player(t_param *param, int frame, int x, int y)
-{
-	static int		current_key;
-	t_user_sprites	*user_sprites;
-
-	if (frame >= 60)
-		frame = frame - 60;
-	if ( param->last_key != current_key )
-	{
-		frame = 0;
-		current_key = param->last_key;
-	}
-	sprites = &param->user_sprites;
-	if (param->last_key == KEY_W)
-	{
-		if (frame == 15 * 0)
-			sprites->current = sprites.w_0;
-		if (frame == 15 * 1)
-			sprites->current = sprites.w_1;
-		if (frame == 15 * 2)
-			sprites->current = sprites.w_2;
-		if (frame == 15 * 3)
-			sprites->current = sprites.w_3;
-	}
-	if (param->last_key == KEY_A)
-	{
-		if (frame == 15 * 0)
-			sprites->current = sprites.a_0;
-		if (frame == 15 * 1)
-			sprites->current = sprites.a_1;
-		if (frame == 15 * 2)
-			sprites->current = sprites.a_2;
-		if (frame == 15 * 3)
-			sprites->current = sprites.a_3;
-	}
-	if (param->last_key == KEY_S)
-	{
-		if (frame == 15 * 0)
-			sprites->current = sprites.s_0;
-		if (frame == 15 * 1)
-			sprites->current = sprites.s_1;
-		if (frame == 15 * 2)
-			sprites->current = sprites.s_2;
-		if (frame == 15 * 3)
-			sprites->current = sprites.s_3;
-	}
-	if (param->last_key == KEY_D)
-	{
-		if (frame == 15 * 0)
-			sprites->current = sprites.d_0;
-		if (frame == 15 * 1)
-			sprites->current = sprites.d_1;
-		if (frame == 15 * 2)
-			sprites->current = sprites.d_2;
-		if (frame == 15 * 3)
-			sprites->current = sprites.d_3;
-	}
-	mlx_put_image_to_window(
-		param->mlx, param->win, sprites->current, x * 64, y * 64);
-}
-
-void draw_coin(t_param *param, int x, int y)
+void draw_coin(t_game *param, int x, int y)
 {
 	if (x % 2 == 0 && y % 2 == 0)
 		mlx_put_image_to_window(
@@ -242,7 +101,7 @@ void draw_coin(t_param *param, int x, int y)
 	return ;
 }
 
-void draw_ghost(t_param *param, int frame, int x, int y)
+void draw_ghost(t_game *param, int frame, int x, int y)
 {
 	if (frame == 30 * 0)
 		mlx_put_image_to_window(
@@ -259,7 +118,7 @@ void draw_ghost(t_param *param, int frame, int x, int y)
 }
 
 
-void draw_map(t_param	*param, int frame)
+void draw_map(t_game	*param, int frame)
 {
 	int x;
 	int y;
@@ -303,7 +162,7 @@ void draw_map(t_param	*param, int frame)
 	}
 }
 
-int	ft_update(t_param *param)
+int	ft_update(t_game *param)
 {
 	static int	frame;
 
@@ -315,7 +174,7 @@ int	ft_update(t_param *param)
 	return (0);
 }
 
-void load_map(t_param	*param, char *file_path)
+void load_map(t_game	*param, char *file_path)
 {
 	int fd = open(file_path, O_RDONLY);
 	char		read_buffer[1024];
@@ -348,7 +207,7 @@ void load_map(t_param	*param, char *file_path)
 
 }
 
-void print_map(t_param *param)
+void print_map(t_game *param)
 {
 	int x;
 	int y;
@@ -364,7 +223,7 @@ void print_map(t_param *param)
 	printf("\n\n");
 }
 
-int	key_hook(int keycode, t_param *param)
+int	key_hook(int keycode, t_game *param)
 {
 	if (keycode == KEY_ESC)
 		return(close_game());
@@ -381,7 +240,7 @@ int	key_hook(int keycode, t_param *param)
 int	main(int argc, char **argv)
 {
 	void	*win;
-	t_param	param;
+	t_game	param;
 	int		img_width;
 	int		img_height;
 
