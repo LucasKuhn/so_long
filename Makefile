@@ -7,7 +7,7 @@ MLXFLAGS	= -lmlx -framework OpenGL -framework AppKit
 LIBFT_FLAGS	= -L./libft -lft
 LEAK_FLAGS	= -g -fsanitize=address
 FLAGS		= $(LIBFT_FLAGS) $(MLXFLAGS) $(LEAK_FLAGS)
-SRCS		=	draw_player.c main.c
+SRCS		=	draw_player.c main.c misc.c
 			
 OBJS		= $(SRCS:%.c=%.o)
 

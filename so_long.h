@@ -84,6 +84,9 @@ typedef struct		s_game
 	void			*mlx;
 	void			*win;
 	void			*coin;
+	int				coins;
+	int				collected_coins;
+	int				collected_all;
 	t_user_sprites	user_sprites;
 	t_exit_sprites	exit_sprites;
 	t_coin_sprites	coin_sprites;
@@ -95,4 +98,5 @@ typedef struct		s_game
 	int				map_height;
 }					t_game;
 
-void draw_player(t_game *param, int frame, int x, int y);
+void	draw_player(t_game *param, int frame, int x, int y);
+void	print_tile(t_game *game, void *sprite, int x, int y);

@@ -1,9 +1,43 @@
 #include "so_long.h"
 
+int game_over(t_game *game)
+{
+	int x;
+	int y;
+
+	void *sprite;
+	int sprite_w;
+	int sprite_h;
+
+
+	sprite = mlx_xpm_file_to_image(game->mlx, "sprites/game_over.xpm", &sprite_w, &sprite_h);
+	printf("game->map_width:%d game->map_height:%d\n\n", game->map_width, game->map_height);
+	x = (game->map_width  / 2) - (sprite_w/2);
+	y = (game->map_height / 2) - (sprite_h/2);
+	printf("X:%d Y:%d\n\n", x, y);
+	mlx_put_image_to_window(game->mlx, game->win, sprite, x, y);
+	mlx_destroy_image (game->mlx, sprite);
+
+	game->game_ended = 1;
+	return(0);
+}
+
+int game_complete(t_game *param)
+{
+	param->game_ended = 1;
+	return(0);
+}
+
+int close_game()
+{
+	exit(0);
+}
+
 
 void				param_init(t_game *param)
 {
 	param->game_ended = 0;
+	param->collected_coins = 0;
 	param->last_key = KEY_S;
 }
 
@@ -61,12 +95,40 @@ void				load_user_sprites(t_game *param)
 	user->current = user->s_0;
 }
 
+char get_next_tile(int keycode, t_game *param)
+{
+	int next_x;
+	int next_y;
+
+	next_x = param->x;
+	next_y = param->y;
+	if (keycode == KEY_W)
+		next_y--;
+	if (keycode == KEY_S)
+		next_y++;
+	if (keycode == KEY_A)
+		next_x--;
+	if (keycode == KEY_D)
+		next_x++;
+	return ( param->map[next_y][next_x] );
+}
+
 int handle_movement(int keycode, t_game *param)
 {
+	char next_tile;
+
+	next_tile = get_next_tile(keycode, param);
+	if (next_tile == '1')
+		return(0);
+	if (next_tile == 'C')
+		param->collected_coins++;
+	if (next_tile == 'G')
+		return(game_over(param));
+	// if (next_tile == 'E')
+	// 	game_complete(param);
 
 	param->last_key = keycode;
 	param->map[param->y][param->x] = '0';
-
 	if (keycode == KEY_W)
 		param->y--;
 	if (keycode == KEY_S)
@@ -79,33 +141,23 @@ int handle_movement(int keycode, t_game *param)
 	return (0);
 }
 
-int close_game()
-{
-	exit(0);
-}
-
 void draw_coin(t_game *param, int x, int y)
 {
 	if (x % 2 == 0 && y % 2 == 0)
-		mlx_put_image_to_window(
-			param->mlx, param->win, param->coin_sprites.coin_0, x*64, y*64);
+		print_tile(param, param->coin_sprites.coin_0, x, y);
 	if (x % 2 == 0 && y % 2 != 0)
-		mlx_put_image_to_window(
-			param->mlx, param->win, param->coin_sprites.coin_1, x*64, y*64);
+		print_tile(param, param->coin_sprites.coin_1, x, y);
 	if (x % 2 != 0 && y % 2 == 0)
-		mlx_put_image_to_window(
-			param->mlx, param->win, param->coin_sprites.coin_2, x*64, y*64);
+		print_tile(param, param->coin_sprites.coin_2, x, y);
 	if (x % 2 != 0 && y % 2 != 0)
-		mlx_put_image_to_window(
-			param->mlx, param->win, param->coin_sprites.coin_3, x*64, y*64);
+		print_tile(param, param->coin_sprites.coin_3, x, y);
 	return ;
 }
 
 void draw_ghost(t_game *param, int frame, int x, int y)
 {
 	if (frame == 30 * 0)
-		mlx_put_image_to_window(
-			param->mlx, param->win, param->ghost_sprites.ghost_0, x*64, y*64);
+		print_tile(param, param->ghost_sprites.ghost_0, x, y);
 	if (frame == 30 * 1)
 		mlx_put_image_to_window(
 			param->mlx, param->win, param->ghost_sprites.ghost_1, x*64, y*64);
@@ -166,6 +218,8 @@ int	ft_update(t_game *param)
 {
 	static int	frame;
 
+	if (param->game_ended)
+		return(0);
 	draw_map(param, frame);
 	if (frame == 15 * 8)
 		frame = 0;
@@ -178,11 +232,15 @@ void load_map(t_game	*param, char *file_path)
 {
 	int fd = open(file_path, O_RDONLY);
 	char		read_buffer[1024];
-	read(fd, read_buffer, 1024);
+	int read_int = read(fd, read_buffer, 1024);
+	printf("read int: %d", read_int);
 	close(fd);
 	// // If the above is lower than 0, throw an error
+	free(param->map);
+	param->map = NULL;
 	param->map = ft_split(read_buffer, '\n');
 
+	printf("~~ map loaded : ~~\n");
 	int x;
 	int y;
 	y = 0;
@@ -223,14 +281,36 @@ void print_map(t_game *param)
 	printf("\n\n");
 }
 
+int	free_map(t_game *param)
+{
+	int y;
+
+	y = 0;
+	while (param->map[y])
+	{
+		free(param->map[y]);
+		param->map[y] = NULL;
+	}
+	free(param->map);
+	param->map = NULL;
+	return(0);
+}
+
 int	key_hook(int keycode, t_game *param)
 {
 	if (keycode == KEY_ESC)
 		return(close_game());
 	if (keycode == KEY_R)
+	{
+		param_init(param);
+		free_map(param);
 		load_map(param, param->map_file);
+	}
 	if (keycode == KEY_P)
+	{
 		print_map(param);
+		// game_over(param);
+	}
 	if (param->game_ended)
 		return (0);
 	handle_movement(keycode, param);
