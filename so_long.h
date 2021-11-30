@@ -1,35 +1,35 @@
-#include "libft/libft.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   so_long.h                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lalexk-ku <lalex-ku@42sp.org.br>           +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/11/29 21:56:40 by lalexk-ku         #+#    #+#             */
+/*   Updated: 2021/11/29 22:12:48 by lalexk-ku        ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include <mlx.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <fcntl.h> // Open
-#include <unistd.h> // Read
+#ifndef SO_LONG_H
+# define SO_LONG_H
 
-// QUIT
-#define KEY_ESC 53
+# define KEY_ESC 53
+# define BTN_X 17
+# define NO_EVENT 0L
+# define KEY_W 13
+# define KEY_A 0
+# define KEY_S 1
+# define KEY_D 2
+# define KEY_R 15
+# define KEY_P 35
+# define WHITE 0xF0F8FF
 
-// X11 KEY EVENTS
-#define BTN_X 17
-
-// X11 MASKS
-#define NO_EVENT 0L
-
-// MOVEMENT
-#define KEY_W 13
-#define KEY_A 0
-#define KEY_S 1
-#define KEY_D 2
-
-// RESTART
-#define KEY_R 15
-#define KEY_E 14
-
-// PRINT
-#define KEY_P 35
-
-// TILE
-#define TILE_SIZE 64
+# include "libft/libft.h"
+# include <fcntl.h> // Open
+# include <unistd.h> // Read
+# include <mlx.h>
+# include <stdio.h>
+# include <stdlib.h>
 
 typedef struct		s_user_sprites
 {
@@ -76,17 +76,16 @@ typedef struct		s_ghost_sprites
 
 typedef struct		s_game
 {
-	int				game_ended;
-	int				last_key;
-	char			*map_file;
-	void			*tile;
-	void			*wall;
 	void			*mlx;
 	void			*win;
-	void			*coin;
-	int				coins;
+	void			*tile;
+	void			*wall;
+	char			*map_file;
+	int				game_ended;
+	int				last_key;
+	int				moves;
 	int				collected_coins;
-	int				collected_all;
+	int				coins;
 	t_user_sprites	user_sprites;
 	t_exit_sprites	exit_sprites;
 	t_coin_sprites	coin_sprites;
@@ -98,5 +97,23 @@ typedef struct		s_game
 	int				map_height;
 }					t_game;
 
-void	draw_player(t_game *param, int frame, int x, int y);
-void	print_tile(t_game *game, void *sprite, int x, int y);
+void				draw_player(t_game *param, int frame, int x, int y);
+void				print_tile(t_game *game, void *sprite, int x, int y);
+void				draw_map(t_game *game, int frame);
+int					close_game(t_game *game);
+int					free_map(t_game *game);
+void				load_map(t_game *game);
+int					game_complete(t_game *game);
+int					is_movement_key(int keycode);
+int					handle_movement(int keycode, t_game *game);
+void				load_map(t_game *game);
+void				load_images(t_game *game);
+void				load_user_sprites(t_game *game);
+int					game_over(t_game *game);
+void				draw_map(t_game *game, int frame);
+void				draw_coin(t_game *game, int x, int y);
+void				draw_ghost(t_game *game, int frame, int x, int y);
+void				draw_exit(t_game *game, int x, int y);
+void				draw_moves(t_game *game);
+
+#endif
