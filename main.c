@@ -6,7 +6,7 @@
 /*   By: lalexk-ku <lalex-ku@42sp.org.br>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/29 22:03:52 by lalexk-ku         #+#    #+#             */
-/*   Updated: 2021/11/29 22:09:01 by lalexk-ku        ###   ########.fr       */
+/*   Updated: 2021/12/02 13:20:43 by lalexk-ku        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,6 @@ int	main(int argc, char **argv)
 {
 	void	*win;
 	t_game	game;
-	int		img_width;
-	int		img_height;
 
 	game.map_file = argv[1];
 	game_init(&game);
