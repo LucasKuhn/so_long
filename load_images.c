@@ -12,6 +12,21 @@
 
 #include "so_long.h"
 
+void	load_ghosts(t_game *game)
+{
+	int				w;
+	int				h;
+	void			*mlx;
+	t_ghost_sprites	*ghosts;
+
+	mlx = game->mlx;
+	ghosts = &game->ghost_sprites;
+	ghosts->ghost_0 = mlx_xpm_file_to_image(mlx, "sprites/g_0.xpm", &w, &h);
+	ghosts->ghost_1 = mlx_xpm_file_to_image(mlx, "sprites/g_1.xpm", &w, &h);
+	ghosts->ghost_2 = mlx_xpm_file_to_image(mlx, "sprites/g_2.xpm", &w, &h);
+	ghosts->ghost_3 = mlx_xpm_file_to_image(mlx, "sprites/g_3.xpm", &w, &h);
+}
+
 void	load_images(t_game *game)
 {
 	int				w;
@@ -19,12 +34,10 @@ void	load_images(t_game *game)
 	void			*mlx;
 	t_exit_sprites	*exit;
 	t_coin_sprites	*coins;
-	t_ghost_sprites	*ghosts;
 
 	mlx = game->mlx;
 	exit = &game->exit_sprites;
 	coins = &game->coin_sprites;
-	ghosts = &game->ghost_sprites;
 	game->wall = mlx_xpm_file_to_image(mlx, "sprites/tree.xpm", &w, &h);
 	game->tile = mlx_xpm_file_to_image(mlx, "sprites/tile.xpm", &w, &h);
 	exit->open = mlx_xpm_file_to_image(mlx, "sprites/e_open.xpm", &w, &h);
@@ -33,10 +46,7 @@ void	load_images(t_game *game)
 	coins->coin_1 = mlx_xpm_file_to_image(mlx, "sprites/c_1.xpm", &w, &h);
 	coins->coin_2 = mlx_xpm_file_to_image(mlx, "sprites/c_2.xpm", &w, &h);
 	coins->coin_3 = mlx_xpm_file_to_image(mlx, "sprites/c_3.xpm", &w, &h);
-	ghosts->ghost_0 = mlx_xpm_file_to_image(mlx, "sprites/g_0.xpm", &w, &h);
-	ghosts->ghost_1 = mlx_xpm_file_to_image(mlx, "sprites/g_1.xpm", &w, &h);
-	ghosts->ghost_2 = mlx_xpm_file_to_image(mlx, "sprites/g_2.xpm", &w, &h);
-	ghosts->ghost_3 = mlx_xpm_file_to_image(mlx, "sprites/g_3.xpm", &w, &h);
+	load_ghosts(game);
 }
 
 void	load_user_sprites(t_game *game)

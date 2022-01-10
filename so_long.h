@@ -13,14 +13,14 @@
 #ifndef SO_LONG_H
 # define SO_LONG_H
 
-# define KEY_ESC 53
+# define KEY_ESC 65307
 # define BTN_X 17
 # define NO_EVENT 0L
-# define KEY_W 13
-# define KEY_A 0
-# define KEY_S 1
-# define KEY_D 2
-# define KEY_R 15
+# define KEY_W 119
+# define KEY_A 97
+# define KEY_S 115
+# define KEY_D 100
+# define KEY_R 114
 # define KEY_P 35
 # define WHITE 0xF0F8FF
 
@@ -31,7 +31,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 
-typedef struct		s_user_sprites
+typedef struct s_user_sprites
 {
 	void			*current;
 	void			*w_0;
@@ -52,13 +52,13 @@ typedef struct		s_user_sprites
 	void			*d_3;
 }					t_user_sprites;
 
-typedef struct		s_exit_sprites
+typedef struct s_exit_sprites
 {
 	void			*open;
 	void			*closed;
 }					t_exit_sprites;
 
-typedef struct		s_coin_sprites
+typedef struct s_coin_sprites
 {
 	void			*coin_0;
 	void			*coin_1;
@@ -66,7 +66,7 @@ typedef struct		s_coin_sprites
 	void			*coin_3;
 }					t_coin_sprites;
 
-typedef struct		s_ghost_sprites
+typedef struct s_ghost_sprites
 {
 	void			*ghost_0;
 	void			*ghost_1;
@@ -74,7 +74,7 @@ typedef struct		s_ghost_sprites
 	void			*ghost_3;
 }					t_ghost_sprites;
 
-typedef struct		s_game
+typedef struct s_game
 {
 	void			*mlx;
 	void			*win;
@@ -95,6 +95,7 @@ typedef struct		s_game
 	char			**map;
 	int				map_width;
 	int				map_height;
+	int				map_valid;
 }					t_game;
 
 void				draw_player(t_game *param, int frame, int x, int y);
@@ -102,6 +103,7 @@ void				print_tile(t_game *game, void *sprite, int x, int y);
 void				draw_map(t_game *game, int frame);
 int					close_game(t_game *game);
 int					free_map(t_game *game);
+int					validate_map(t_game *game);
 void				load_map(t_game *game);
 int					game_complete(t_game *game);
 int					is_movement_key(int keycode);
@@ -115,5 +117,7 @@ void				draw_coin(t_game *game, int x, int y);
 void				draw_ghost(t_game *game, int frame, int x, int y);
 void				draw_exit(t_game *game, int x, int y);
 void				draw_moves(t_game *game);
+void				print_error(char *message, t_game *game);
+size_t				ft_arrlen(char **arr);
 
 #endif
