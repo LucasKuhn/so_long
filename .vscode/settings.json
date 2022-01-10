@@ -4,6 +4,7 @@
 		"fcntl.h": "c",
 		"__locale": "c",
 		"__functional_03": "c",
-		"functional": "c"
+		"functional": "c",
+		"so_long.h": "c"
 	}
 }

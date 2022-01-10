@@ -40,6 +40,7 @@ int	ft_update(t_game *game)
 
 int	key_hook(int keycode, t_game *game)
 {
+	printf("Pressed key: %i", keycode);
 	if (keycode == KEY_ESC)
 		return (close_game(game));
 	if (keycode == KEY_R)
@@ -64,7 +65,9 @@ int	main(int argc, char **argv)
 
 	game.map_file = argv[1];
 	game_init(&game);
-	load_map(&game);
+	validate_map(&game);
+	if (!game.map_valid)
+		return (1);
 	game.mlx = mlx_init();
 	game.win = mlx_new_window(
 			game.mlx, game.map_width, game.map_height, "so_long");
