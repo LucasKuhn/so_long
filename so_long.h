@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   so_long.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: lalexk-ku <lalex-ku@42sp.org.br>           +#+  +:+       +#+        */
+/*   By: lalex-ku <lalex-ku@42sp.org.br>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/29 21:56:40 by lalexk-ku         #+#    #+#             */
-/*   Updated: 2021/11/29 22:12:48 by lalexk-ku        ###   ########.fr       */
+/*   Updated: 2022/01/17 16:02:53 by lalex-ku         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,9 @@
 # include "libft/libft.h"
 # include <fcntl.h> // Open
 # include <unistd.h> // Read
-# include <mlx.h>
-# include <stdio.h>
-# include <stdlib.h>
+# include <mlx.h> // MiniLibX
+# include <stdio.h> // Printf
+# include <stdlib.h> // Exit
 
 typedef struct s_user_sprites
 {

@@ -6,7 +6,7 @@
 /*   By: lucas <lucas@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/29 22:02:09 by lalexk-ku         #+#    #+#             */
-/*   Updated: 2022/01/06 19:41:55 by lucas            ###   ########.fr       */
+/*   Updated: 2022/01/15 17:49:58 by lucas            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,9 @@ void	check_walls(t_game *game)
 	size_t	width;
 	size_t	height;
 
+	y = 0;
 	width = ft_strlen(game->map[y]);
 	height = ft_arrlen(game->map);
-	y = 0;
 	while (game->map[y])
 	{
 		x = 0;

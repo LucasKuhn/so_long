@@ -3,7 +3,7 @@ LIBFT_DIR	= ./libft
 LIBFT_A		= $(LIBFT_DIR)/libft.a
 CC			= clang
 # MLXFLAGS	= -I /usr/X11/include -g -L /usr/X11/lib -lX11 -lXext -lmlx -framework OpenGL -framework AppKit
-MLXFLAGS	= -lX11 -lXext -lmlx 
+MLXFLAGS	= -lmlx -Ilmlx -lXext -lX11
 ifeq ($(shell uname),Darwin) # MacOS
 	MLXFLAGS	+= -framework OpenGL -framework AppKit
 	LEAK_FLAGS	= -g3 -fsanitize=address
@@ -17,7 +17,7 @@ all: $(NAME)
 	./$(NAME) maps/small.ber
 
 $(NAME):  $(OBJS) $(LIBFT_A)
-	$(CC) $(FLAGS) $(OBJS) -o $(NAME)
+	$(CC) $(OBJS) $(FLAGS) -o $(NAME) $(LIBFT_FLAGS)
 
 $(LIBFT_A):
 	make --directory=$(LIBFT_DIR)
